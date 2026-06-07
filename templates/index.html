@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exam Practice</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body class="bg-gray-50 min-h-screen font-sans text-gray-800">
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     SCREEN: HOME — exam list
+═══════════════════════════════════════════════════════════════════════ -->
+<div id="screen-home" class="screen max-w-2xl mx-auto px-4 py-12">
+  <div class="text-center mb-10">
+    <div class="text-5xl mb-3">🎓</div>
+    <h1 class="text-3xl font-bold text-gray-900">Exam Practice</h1>
+    <p class="text-gray-500 mt-2">Select an exam to begin your session</p>
+  </div>
+  <div id="exam-list" class="flex flex-col gap-4">
+    <p class="text-gray-400 text-center">Loading exams…</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     SCREEN: SETUP — session configuration
+═══════════════════════════════════════════════════════════════════════ -->
+<div id="screen-setup" class="screen hidden max-w-lg mx-auto px-4 py-12">
+  <button onclick="App.goHome()" class="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 mb-6">
+    ← Back
+  </button>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+    <h2 id="setup-title" class="text-xl font-bold text-gray-900"></h2>
+    <p id="setup-code" class="text-sm text-gray-500 mt-0.5 mb-6"></p>
+
+    <label class="block mb-6">
+      <span class="text-sm font-medium text-gray-700 block mb-2">
+        Number of questions
+        <span class="text-gray-400 font-normal">(max <span id="count-max">—</span>)</span>
+      </span>
+      <div class="flex items-center gap-4">
+        <input id="setup-count" type="range" min="1" max="10" value="10"
+          class="flex-1 accent-blue-600" />
+        <span id="count-display" class="w-10 text-center font-bold text-blue-600 text-lg">10</span>
+      </div>
+    </label>
+
+    <fieldset class="mb-8">
+      <legend class="text-sm font-medium text-gray-700 mb-2">Question order</legend>
+      <label class="flex items-center gap-2 mb-2 cursor-pointer">
+        <input type="radio" name="order" id="setup-sequential" checked
+          class="w-4 h-4 accent-blue-600" />
+        <span class="text-sm text-gray-700">Sequential</span>
+      </label>
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="radio" name="order" id="setup-random"
+          class="w-4 h-4 accent-blue-600" />
+        <span class="text-sm text-gray-700">Random</span>
+      </label>
+    </fieldset>
+
+    <button id="btn-start"
+      class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors">
+      Start Exam →
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     SCREEN: QUESTION
+═══════════════════════════════════════════════════════════════════════ -->
+<div id="screen-question" class="screen hidden max-w-2xl mx-auto px-4 py-8">
+
+  <!-- Top nav: Setup + Previous -->
+  <div class="flex items-center justify-between mb-4">
+    <button onclick="App.goToSetup()" class="text-sm text-gray-400 hover:text-gray-700 transition-colors">← Setup</button>
+    <button id="btn-prev" onclick="App.handleBack()" class="hidden text-sm text-blue-500 hover:text-blue-700 transition-colors">← Previous</button>
+  </div>
+
+  <!-- Progress header -->
+  <div class="flex items-center justify-between mb-2">
+    <span id="q-num" class="text-sm font-medium text-gray-500"></span>
+    <span id="q-progress-text" class="text-sm font-medium text-blue-600"></span>
+  </div>
+  <div class="w-full bg-gray-200 rounded-full h-2 mb-6">
+    <div id="q-progress" class="progress-fill bg-blue-500 h-2 rounded-full" style="width:0%"></div>
+  </div>
+
+  <!-- Question card -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
+    <div class="flex items-center justify-between mb-4">
+      <span id="q-type-badge" class="inline-block px-3 py-1 rounded-full text-xs font-semibold"></span>
+      <span id="q-actual-num" class="text-xs text-gray-400 font-mono bg-gray-100 px-2 py-1 rounded-md"></span>
+    </div>
+    <p id="q-text" class="text-gray-800 text-base leading-relaxed mb-6 whitespace-pre-wrap"></p>
+    <div id="q-inputs" class="flex flex-col gap-3"></div>
+  </div>
+
+  <div class="flex justify-end mt-5">
+    <button id="btn-next"
+      class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl transition-colors">
+      Next →
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     SCREEN: FEEDBACK — per-question result
+═══════════════════════════════════════════════════════════════════════ -->
+<div id="screen-feedback" class="screen hidden max-w-2xl mx-auto px-4 py-8">
+  <div class="flex items-center justify-between mb-4">
+    <span id="fb-actual-num" class="text-xs text-gray-400 font-mono bg-gray-100 px-2 py-1 rounded-md"></span>
+    <span id="fb-num" class="text-sm text-gray-400"></span>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
+
+    <!-- Status banner -->
+    <div id="fb-status" class="text-2xl font-bold mb-5"></div>
+
+    <!-- Question recap -->
+    <div class="text-sm text-gray-500 uppercase tracking-wide font-semibold mb-1">Question</div>
+    <p id="fb-question" class="text-gray-700 text-sm leading-relaxed mb-5 whitespace-pre-wrap"></p>
+
+    <!-- All choices colour-coded: green=correct, red=wrong pick, gray=not relevant -->
+    <div class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">All Choices</div>
+    <div id="fb-all-choices" class="mb-5"></div>
+
+    <!-- Matching comparison table (shown only for matching questions) -->
+    <div id="fb-match-table" class="hidden mb-5 overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="bg-gray-100 text-gray-600 text-xs uppercase tracking-wide">
+            <th class="text-left px-3 py-2 rounded-tl-lg">Statement</th>
+            <th class="text-left px-3 py-2">Your Answer</th>
+            <th class="text-left px-3 py-2">Correct</th>
+            <th class="px-3 py-2 rounded-tr-lg"></th>
+          </tr>
+        </thead>
+        <tbody id="fb-match-rows"></tbody>
+      </table>
+    </div>
+
+    <!-- Explanation -->
+    <div id="fb-explanation" class="hidden">
+      <div class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Explanation</div>
+      <div class="explanation-box bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-gray-700 leading-relaxed"></div>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-between mt-5">
+    <button onclick="App.handleRevise()"
+      class="text-sm text-blue-500 hover:text-blue-700 transition-colors">
+      ← Revise Answer
+    </button>
+    <button id="btn-continue"
+      class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl transition-colors">
+      Continue →
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     SCREEN: SUMMARY — end-of-session results
+═══════════════════════════════════════════════════════════════════════ -->
+<div id="screen-summary" class="screen hidden max-w-lg mx-auto px-4 py-12 text-center">
+  <div class="text-5xl mb-4">📊</div>
+  <h2 class="text-2xl font-bold text-gray-900 mb-2">
+    <span id="sum-mode-label">Exam Complete!</span>
+  </h2>
+  <p class="text-gray-500 mb-8" id="sum-exam-name"></p>
+
+  <!-- Score ring -->
+  <div class="flex justify-center mb-8">
+    <div id="sum-score-ring" class="score-ring">
+      <span id="sum-score">—</span>
+    </div>
+  </div>
+
+  <!-- Stats grid -->
+  <div class="grid grid-cols-3 gap-4 mb-10">
+    <div class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+      <div class="text-2xl font-bold text-gray-800" id="sum-total">—</div>
+      <div class="text-xs text-gray-400 mt-1">Total</div>
+    </div>
+    <div class="bg-green-50 rounded-xl border border-green-200 p-4 shadow-sm">
+      <div class="text-2xl font-bold text-green-600" id="sum-correct">—</div>
+      <div class="text-xs text-gray-400 mt-1">Correct</div>
+    </div>
+    <div class="bg-red-50 rounded-xl border border-red-200 p-4 shadow-sm">
+      <div class="text-2xl font-bold text-red-500" id="sum-incorrect">—</div>
+      <div class="text-xs text-gray-400 mt-1">Incorrect</div>
+    </div>
+  </div>
+
+  <div class="flex flex-col sm:flex-row gap-3 justify-center">
+    <button id="btn-retry" class="hidden bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors">
+      Retry Incorrect
+    </button>
+    <button id="btn-new-session" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors">
+      New Session
+    </button>
+  </div>
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>

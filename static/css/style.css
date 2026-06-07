@@ -1,0 +1,49 @@
+/* ── Custom styles not covered by Tailwind utilities ─────────────────────── */
+
+/* Smooth screen transitions */
+.screen { animation: fadeIn 0.18s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* Option label – highlight when child input is checked */
+.opt-label:has(input[type="radio"]:checked) {
+  border-color: #3B82F6;
+  background-color: #EFF6FF;
+}
+.opt-label:has(input[type="checkbox"]:checked) {
+  border-color: #7C3AED;
+  background-color: #F5F3FF;
+}
+.opt-label-teal:has(input[type="checkbox"]:checked) {
+  border-color: #0D9488;
+  background-color: #F0FDFA;
+}
+
+/* Ordering button – selected state */
+.order-btn.selected {
+  border-color: #10B981;
+  background-color: #ECFDF5;
+}
+
+/* Scrollable explanation block */
+.explanation-box {
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+/* Progress bar */
+.progress-fill {
+  transition: width 0.4s ease;
+}
+
+/* Score ring */
+.score-ring {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 8px solid currentColor;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  font-weight: 700;
+}

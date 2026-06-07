@@ -1,0 +1,47 @@
+Build a web-based exam practice application.
+
+Requirements:
+- The app must read exam data from JSON files located in: G:\My Drive\Sync\Docs
+- Use the JSON content as the source for generating the exam questions.
+- The app should present one question at a time.
+- After the user answers a question and clicks “Next”, immediately show whether the answer was correct and display the correct answer/explanation if available.
+- If the user clicks “Next” without selecting any answer, the app must treat that question as incorrect, show the correct answer, and then continue.
+- Then move to the next question.
+
+Question types to support:
+1. Single-choice questions (choose 1 answer)
+2. Multiple-choice questions (choose multiple answers)
+3. Dropdown-selection questions (user selects answer(s) from dropdown)
+
+Exam flow:
+- Before starting, let the user choose:
+  - how many questions they want in that session
+  - whether questions should be shown in sequence based on the order/sequence field in each JSON object, or randomized
+- During the exam:
+  - show only one question per page/screen
+  - allow answering and then clicking Next
+  - after Next, show the result for that specific question before continuing
+  - if no answer was selected, automatically mark it wrong and reveal the correct answer
+- At the end of the exam:
+  - show a summary of results, including total questions, correct answers, incorrect answers, and score/percentage
+  - provide an option to retry only the incorrect questions
+
+Implementation expectations:
+- Create a clean, modern, responsive website UI
+- Parse the JSON structure robustly and support different question formats if possible
+- Keep the code modular and maintainable
+- Include validation for single-answer, multiple-answer, and dropdown question types
+- Track user answers, correctness, unanswered-but-skipped questions as wrong answers, and incorrect-only retry mode
+- If the JSON format is unclear, first propose a flexible schema and adapter layer so the app can normalize the input data before rendering questions
+
+Please provide:
+1. A recommended tech stack
+2. The folder/project structure
+3. The full implementation code
+4. Instructions to run locally
+5. Suggestions for how to handle reading files from a local Windows path like G:\My Drive\Sync\Docs in a secure browser-friendly way
+
+Important:
+- Do not skip edge cases
+- Make the app practical and working, not just conceptual
+- If direct browser access to G:\My Drive\Sync\Docs is not possible, suggest the best alternative architecture (for example, a small local backend that reads the JSON files and serves them to the frontend)
