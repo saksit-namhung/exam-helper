@@ -19,8 +19,8 @@ A web-based exam practice application built with Flask. It reads exam data from 
    Edit `app.py` and set `DATA_DIR` to the folder containing your exam JSON files:
 
    ```python
-   DATA_DIR = r"G:\My Drive\Sync\Docs"   # Windows example
-   # DATA_DIR = "/path/to/your/exam/files"  # macOS / Linux example
+   DATA_DIR = r"C:\path\to\your\exam\files"   # Windows example
+   # DATA_DIR = "/path/to/your/exam/files"     # macOS / Linux example
    ```
 
 3. **Run the app**
@@ -35,6 +35,6 @@ A web-based exam practice application built with Flask. It reads exam data from 
 
 - Supports single-choice, multiple-choice, and dropdown-selection questions
 - Choose the number of questions per session
-- Sequential or randomised question order
+- Sequential or randomized question order
 - Immediate feedback after each answer
 - Final score summary at the end of each session
