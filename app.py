@@ -14,7 +14,7 @@ except ModuleNotFoundError as exc:
         "Missing Flask dependency (or one of its required packages).\n"
         "Install dependencies with one of these commands:\n"
         "  python -m pip install -r requirements.txt\n"
-        "  python -m pip install flask"
+        "  python -m pip install Flask"
     ) from exc
 
 app = Flask(__name__)
