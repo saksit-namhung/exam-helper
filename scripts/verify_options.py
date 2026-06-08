@@ -1,7 +1,7 @@
 """Verify Q58 is fixed and count remaining truncated options."""
 import json
 
-DATA_FILE = r"G:\My Drive\Sync\Docs\MLA-C01.json"
+DATA_FILE = "/Users/saksit/Downloads/FIles/MLA-C01.json"
 
 with open(DATA_FILE, encoding="utf-8") as f:
     data = json.load(f)

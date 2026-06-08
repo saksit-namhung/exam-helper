@@ -1,6 +1,6 @@
 import pdfplumber, re, json
 
-with open(r"G:\My Drive\Sync\Docs\MLA-C01.json", encoding="utf-8") as f:
+with open("/Users/saksit/Downloads/FIles/MLA-C01.json", encoding="utf-8") as f:
     data = json.load(f)
 
 no_ans = [q for q in data["questions"] if q["type"] == "hotspot" and not q.get("answer")]
@@ -11,7 +11,7 @@ for q in no_ans:
 print()
 
 # Show raw PDF blocks for unanswered HOTSPOT questions
-with pdfplumber.open(r"G:\My Drive\Sync\Docs\MLA-C01.pdf") as pdf:
+with pdfplumber.open("/Users/saksit/Downloads/FIles/MLA-C01.pdf") as pdf:
     full_text = "\n".join(p.extract_text() for p in pdf.pages if p.extract_text())
 
 for q in no_ans[:4]:

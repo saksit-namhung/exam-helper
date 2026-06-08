@@ -12,7 +12,8 @@ from flask import Flask, abort, jsonify, render_template
 app = Flask(__name__)
 
 # ── Local directory containing exam JSON files ──────────────────────────────
-DATA_DIR = r"G:\My Drive\Sync\Docs"
+# Override with DATA_DIR environment variable when needed (e.g. different machines).
+DATA_DIR = os.environ.get("DATA_DIR", "/Users/saksit/Downloads/FIles")
 
 
 # ── Routes ───────────────────────────────────────────────────────────────────

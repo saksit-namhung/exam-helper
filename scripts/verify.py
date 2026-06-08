@@ -1,6 +1,6 @@
 import json
 
-with open(r"G:\My Drive\Sync\Docs\MLA-C01.json", encoding="utf-8") as f:
+with open("/Users/saksit/Downloads/FIles/MLA-C01.json", encoding="utf-8") as f:
     data = json.load(f)
 
 hotspots = [q for q in data["questions"] if q["type"] == "hotspot"]
