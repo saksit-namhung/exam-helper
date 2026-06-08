@@ -11,9 +11,10 @@ try:
     from flask import Flask, abort, jsonify, render_template
 except ModuleNotFoundError as exc:
     raise SystemExit(
-        "Missing dependency: Flask.\n"
-        "Install requirements first with:\n"
-        "  python -m pip install -r requirements.txt"
+        "Missing Flask dependency (or one of its required packages).\n"
+        "Install dependencies with one of these commands:\n"
+        "  python -m pip install -r requirements.txt\n"
+        "  python -m pip install flask"
     ) from exc
 
 app = Flask(__name__)
