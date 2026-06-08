@@ -7,7 +7,14 @@ import json
 import os
 from pathlib import Path
 
-from flask import Flask, abort, jsonify, render_template
+try:
+    from flask import Flask, abort, jsonify, render_template
+except ModuleNotFoundError as exc:
+    raise SystemExit(
+        "Missing dependency: Flask.\n"
+        "Install requirements first with:\n"
+        "  python -m pip install -r requirements.txt"
+    ) from exc
 
 app = Flask(__name__)
 
