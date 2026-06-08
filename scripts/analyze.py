@@ -1,6 +1,6 @@
 import json, collections
 
-with open(r"G:\My Drive\Sync\Docs\MLA-C01.json", encoding="utf-8") as f:
+with open("/Users/saksit/Downloads/FIles/MLA-C01.json", encoding="utf-8") as f:
     data = json.load(f)
 
 types = collections.Counter(q["type"] for q in data["questions"])

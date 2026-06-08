@@ -2,8 +2,8 @@ import pdfplumber
 import re
 import json
 
-PDF_PATH = r"G:\My Drive\Sync\Docs\MLA-C01.pdf"
-OUT_PATH = r"G:\My Drive\Sync\Docs\MLA-C01.json"
+PDF_PATH = "/Users/saksit/Downloads/FIles/MLA-C01.pdf"
+OUT_PATH = "/Users/saksit/Downloads/FIles/MLA-C01.json"
 
 
 def extract_all_text(pdf_path):

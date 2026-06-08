@@ -7,8 +7,8 @@ import re
 
 import pdfplumber
 
-PDF_PATH = r"G:\My Drive\Sync\Docs\MLA-C01.pdf"
-NEW_JSON  = r"G:\My Drive\Sync\Docs\MLA-C01.json"
+PDF_PATH = "/Users/saksit/Downloads/FIles/MLA-C01.pdf"
+NEW_JSON  = "/Users/saksit/Downloads/FIles/MLA-C01.json"
 
 
 # ── Old (buggy) parser ────────────────────────────────────────────────────────
