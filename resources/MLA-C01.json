@@ -1915,7 +1915,7 @@
         "Semantic segmentation algorithm",
         "Sequence-to-Sequence (seq2seq) algorithm"
       ],
-      "hotspot_subtype": "selection",
+      "hotspot_subtype": "ordering",
       "explanation": "Sequence-to-Sequence (seq2seq) algorithm. Seq2Seq models are designed for natural language understanding and generation. They convert one sequence of text into another, making them ideal for: Text summarization Language translation Chatbots and conversational AI Semantic Segmentation algorithm. Semantic segmentation performs pixel-level image classification, assigning a label to every pixel in an image. This allows: Object detection in self-driving cars Medical imaging analysis Scene understanding. Random Cut Forest (RCF) algorithm. Random Cut Forest (RCF) is used for: Anomaly detection Detecting unusual behavior in time-series or tabular data Example use cases: Fraud detection Fault detection Outlier detection in sensor data"
     },
     {
@@ -2512,7 +2512,7 @@
         "L2 regularization",
         "Early stopping"
       ],
-      "hotspot_subtype": "selection",
+      "hotspot_subtype": "multi-slot",
       "answer": [
         "L1 regularization",
         "L2 regularization",
@@ -2681,7 +2681,7 @@
         "General oversampling",
         "Synthetic Minority Oversampling Technique (SMOTE) for text"
       ],
-      "hotspot_subtype": "selection",
+      "hotspot_subtype": "ordering",
       "answer": [
         "Categorical cross-entropy",
         "Fallback metric",
@@ -2731,7 +2731,7 @@
         "Real-time inference",
         "Serverless inference"
       ],
-      "hotspot_subtype": "selection",
+      "hotspot_subtype": "ordering",
       "answer": [
         "Asynchronous inference",
         "Batch inference",
@@ -2832,7 +2832,7 @@
         "Canary traffic shifting",
         "Linear traffic shifting"
       ],
-      "hotspot_subtype": "selection",
+      "hotspot_subtype": "ordering",
       "answer": [
         "All at once traffic shifting",
         "Canary traffic shifting",
@@ -3122,7 +3122,7 @@
         "General oversampling",
         "Synthetic Minority Oversampling Technique (SMOTE) for text"
       ],
-      "hotspot_subtype": "selection",
+      "hotspot_subtype": "ordering",
       "answer": [
         "Categorical cross-entropy",
         "Fallback metric",
@@ -3172,7 +3172,7 @@
         "Amazon S3 bucket",
         "Amazon SageMaker Clarify"
       ],
-      "hotspot_subtype": "selection",
+      "hotspot_subtype": "ordering",
       "answer": [
         "Amazon CloudWatch alarms",
         "Amazon CloudWatch metrics",

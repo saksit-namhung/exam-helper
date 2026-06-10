@@ -44,6 +44,7 @@ function showScreen(name) {
  *   'hs-selection'      – checkboxes from bullet list (no order)
  *   'hs-ordering'       – click-to-order from bullet list
  *   'hs-matching'       – dropdown per statement
+ *   'hs-multi-slot'     – N dropdowns, same option may be chosen multiple times
  *   'hs-noanswer'       – hotspot but answer missing in source
  *   'mc-noanswer'       – MC but answer missing in source
  */
@@ -53,6 +54,7 @@ function uiType(q) {
     // interaction UI is shown regardless of whether grading data is available.
     const sub = q.hotspot_subtype ?? '';
     if (sub === 'ordering' || /select\s+and\s+order/i.test(q.question)) return 'hs-ordering';
+    if (sub === 'multi-slot' || /more than one time/i.test(q.question))  return 'hs-multi-slot';
     if (!q.answer || (Array.isArray(q.answer) && !q.answer.length)) return 'hs-noanswer';
     if (Array.isArray(q.answer) && typeof q.answer[0] === 'object')  return 'hs-matching';
     return 'hs-selection';
@@ -211,18 +213,20 @@ function badgeLabel(t) {
     'mc-single':    'Single Choice',
     'mc-multiple':  'Multiple Choice',
     'mc-noanswer':  'Single Choice',
-    'hs-selection': 'Multi-Select',   // checkboxes — NOT actual dropdowns
-    'hs-ordering':  'Ordering',
-    'hs-matching':  'Dropdown',        // actual <select> dropdowns
-    'hs-noanswer':  'Multi-Select',   // checkboxes — NOT actual dropdowns
+    'hs-selection':  'Multi-Select',
+    'hs-ordering':   'Ordering',
+    'hs-matching':   'Dropdown',
+    'hs-multi-slot': 'Multi-Slot',
+    'hs-noanswer':   'Multi-Select',
   }[t] ?? 'Question';
 }
 
 function badgeClass(t) {
   if (t === 'mc-single' || t === 'mc-noanswer') return 'bg-blue-100 text-blue-700';
-  if (t === 'mc-multiple')  return 'bg-purple-100 text-purple-700';
-  if (t === 'hs-matching')  return 'bg-amber-100 text-amber-700';
-  if (t === 'hs-ordering')  return 'bg-green-100 text-green-700';
+  if (t === 'mc-multiple')   return 'bg-purple-100 text-purple-700';
+  if (t === 'hs-matching')   return 'bg-amber-100 text-amber-700';
+  if (t === 'hs-ordering')   return 'bg-green-100 text-green-700';
+  if (t === 'hs-multi-slot') return 'bg-orange-100 text-orange-700';
   return 'bg-teal-100 text-teal-700';
 }
 
@@ -242,6 +246,8 @@ function buildInputs(q, type) {
       return buildHSOrdering(q);
     case 'hs-matching':
       return buildHSMatching(q);
+    case 'hs-multi-slot':
+      return buildHSMultiSlot(q);
     default:
       return buildMCSingle(q);
   }
@@ -335,6 +341,37 @@ function buildHSMatching(q) {
     </div>`;
 }
 
+function buildHSMultiSlot(q) {
+  const opts = q.options ?? [];
+  if (!opts.length) return '<p class="text-gray-400 italic">No options available.</p>';
+  // Determine slot count from answer length, falling back to "(Choose N)" in the question.
+  let slots = Array.isArray(q.answer) ? q.answer.length : 0;
+  if (!slots) {
+    const m = q.question.match(/\(Choose\s+(\w+)\.?\)/i);
+    if (m) {
+      const words = {one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10};
+      slots = words[m[1].toLowerCase()] ?? parseInt(m[1], 10) || opts.length;
+    } else {
+      slots = opts.length;
+    }
+  }
+  return `<p class="text-xs text-gray-400 mb-3">Select one option per slot. The same option may be used more than once.</p>
+    <div class="flex flex-col gap-3">
+      ${Array.from({length: slots}, (_, i) => `
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2
+                    p-4 bg-gray-50 rounded-xl border-2 border-gray-200">
+          <span class="flex-shrink-0 w-16 text-sm font-semibold text-orange-600">Slot ${i + 1}</span>
+          <select name="multi-slot" data-slot="${i}"
+            class="flex-1 border-2 border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700
+                   focus:border-orange-400 focus:outline-none bg-white cursor-pointer">
+            <option value="">— Select —</option>
+            ${opts.map(opt => `<option value="${esc(opt)}">${esc(opt)}</option>`).join('')}
+          </select>
+        </div>
+      `).join('')}
+    </div>`;
+}
+
 // ── Ordering toggle (called from inline onclick) ───────────────────────────────
 
 function toggleOrder(btn) {
@@ -393,6 +430,11 @@ function collectAnswer() {
     }
     case 'hs-ordering':
       return state._ordering.length ? state._ordering.map(o => o.val) : null;
+    case 'hs-multi-slot': {
+      const selects = [...document.querySelectorAll('select[name="multi-slot"]')];
+      if (selects.some(s => !s.value)) return null;   // some slots unfilled
+      return selects.map(s => s.value);
+    }
     case 'hs-matching': {
       const selects = [...document.querySelectorAll('select[name="match"]')];
       if (selects.some(s => !s.value)) return null;   // some dropdowns unfilled
@@ -437,6 +479,14 @@ function checkAnswer(userAnswer, q) {
       if (!Array.isArray(userAnswer) || !Array.isArray(q.answer)) return false;
       if (userAnswer.length !== q.answer.length) return false;
       return q.answer.every((item, i) => norm(item) === norm(userAnswer[i]));
+    }
+
+    case 'hs-multi-slot': {
+      if (!Array.isArray(userAnswer) || !Array.isArray(q.answer)) return false;
+      // Order within slots is unknown, so compare sorted counts.
+      const a = [...q.answer].map(norm).sort();
+      const b = [...userAnswer].map(norm).sort();
+      return JSON.stringify(a) === JSON.stringify(b);
     }
 
     case 'hs-matching': {
@@ -547,6 +597,13 @@ function formatAnswer(answer, q, type, mode, isCorrect) {
     const items = Array.isArray(answer) ? answer : [answer];
     return items.map(item =>
       `<div class="flex gap-2"><span class="text-teal-500">•</span><span>${esc(item)}</span></div>`
+    ).join('');
+  }
+
+  if (type === 'hs-multi-slot') {
+    const items = Array.isArray(answer) ? answer : [answer];
+    return items.map((item, i) =>
+      `<div class="flex gap-2"><span class="text-orange-500 font-semibold min-w-[3.5rem]">Slot ${i+1}</span><span>${esc(item)}</span></div>`
     ).join('');
   }
 
@@ -758,6 +815,39 @@ function renderAllChoices(userAnswer, q, type, hasAnswer) {
         }
         return `<div class="flex items-center gap-3 p-3 rounded-xl border ${bg}">` +
           posLabel +
+          `<span class="flex-1 text-sm text-gray-700">${esc(opt)}</span>` +
+          `<div class="flex-shrink-0 ml-2">${badge}</div></div>`;
+      }).join('') + '</div>';
+  }
+
+  // Multi-slot: show per-slot comparison
+  if (type === 'hs-multi-slot') {
+    const hsOpts   = Array.isArray(q.options) ? q.options : [];
+    const correctArr = Array.isArray(q.answer) ? [...q.answer].map(norm).sort() : [];
+    const userArr    = userAnswer === null ? [] : (Array.isArray(userAnswer) ? [...userAnswer].map(norm).sort() : []);
+    // Count occurrences in correct vs user answers
+    return '<div class="flex flex-col gap-2">' +
+      hsOpts.map(opt => {
+        const nopt    = norm(opt);
+        const cCount  = correctArr.filter(v => v === nopt).length;
+        const uCount  = userArr.filter(v => v === nopt).length;
+        const match   = hasAnswer && cCount === uCount;
+        const bg      = !hasAnswer ? 'bg-gray-50 border-gray-200'
+                      : match     ? 'bg-green-50 border-green-300'
+                                  : (cCount > 0 || uCount > 0) ? 'bg-red-50 border-red-300'
+                                  : 'bg-gray-50 border-gray-200';
+        let badge = '';
+        if (hasAnswer && cCount > 0 && uCount > 0 && match)
+          badge = `<span class="text-green-600 text-sm font-medium whitespace-nowrap">✅ ×${cCount}</span>`;
+        else if (hasAnswer && cCount > 0 && uCount === 0)
+          badge = `<span class="text-green-600 text-sm font-medium whitespace-nowrap">✅ Expected ×${cCount}</span>`;
+        else if (hasAnswer && uCount > 0 && cCount === 0)
+          badge = `<span class="text-red-500 text-sm font-medium whitespace-nowrap">❌ Yours ×${uCount}</span>`;
+        else if (hasAnswer && cCount !== uCount)
+          badge = `<span class="text-red-500 text-sm font-medium whitespace-nowrap">❌ Need ×${cCount}, got ×${uCount}</span>`;
+        else if (!hasAnswer && uCount > 0)
+          badge = `<span class="text-blue-500 text-sm font-medium whitespace-nowrap">Yours ×${uCount}</span>`;
+        return `<div class="flex items-center gap-3 p-3 rounded-xl border ${bg}">` +
           `<span class="flex-1 text-sm text-gray-700">${esc(opt)}</span>` +
           `<div class="flex-shrink-0 ml-2">${badge}</div></div>`;
       }).join('') + '</div>';

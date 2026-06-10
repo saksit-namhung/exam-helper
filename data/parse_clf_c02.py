@@ -36,10 +36,11 @@ def split_into_questions(full_text):
 
 def parse_mc_options(text):
     """Extract A/B/C/D/E letter options from multiple-choice text."""
-    # Match options that start with a letter followed by a period
-    # Use DOTALL to match across lines, and lazy matching to stop at next option or Answer:
+    # Use \Z (true end-of-string) instead of $ so the lazy .+? keeps matching
+    # across line-breaks rather than stopping at the first newline.
+    # With re.MULTILINE, $ matches end-of-line which would truncate wrapped options.
     option_pattern = re.compile(
-        r"^([A-E])\.\s*(.+?)(?=^[A-E]\.\s+|^Answer:|$)",
+        r"^([A-E])\.\s*(.+?)(?=^[A-E]\.\s+|^Answer:|\Z)",
         re.MULTILINE | re.DOTALL
     )
     options = {}
