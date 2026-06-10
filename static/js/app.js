@@ -49,10 +49,12 @@ function showScreen(name) {
  */
 function uiType(q) {
   if (q.type === 'hotspot') {
-    if (!q.answer || (Array.isArray(q.answer) && !q.answer.length)) return 'hs-noanswer';
-    if (Array.isArray(q.answer) && typeof q.answer[0] === 'object')  return 'hs-matching';
+    // Detect ordering first — even when the answer is absent — so the correct
+    // interaction UI is shown regardless of whether grading data is available.
     const sub = q.hotspot_subtype ?? '';
     if (sub === 'ordering' || /select\s+and\s+order/i.test(q.question)) return 'hs-ordering';
+    if (!q.answer || (Array.isArray(q.answer) && !q.answer.length)) return 'hs-noanswer';
+    if (Array.isArray(q.answer) && typeof q.answer[0] === 'object')  return 'hs-matching';
     return 'hs-selection';
   }
   if (!q.answer) return 'mc-noanswer';
@@ -190,7 +192,10 @@ function renderQuestion() {
   badge.className   = `inline-block px-3 py-1 rounded-full text-xs font-semibold ${badgeClass(type)}`;
 
   // PDF question number + back-button visibility
-  el('q-actual-num').textContent = `Q${q.question_number}`;
+  const numBtn = el('q-actual-num');
+  numBtn.dataset.qnum = `Q${q.question_number}`;
+  numBtn.textContent   = 'Q•••';
+  numBtn.dataset.revealed = 'false';
   el('btn-prev').classList.toggle('hidden', state.currentIdx === 0);
 
   // Question text
@@ -428,6 +433,7 @@ function checkAnswer(userAnswer, q) {
     }
 
     case 'hs-ordering': {
+      if (!q.answer) return null;   // answer not in source — cannot grade
       if (!Array.isArray(userAnswer) || !Array.isArray(q.answer)) return false;
       if (userAnswer.length !== q.answer.length) return false;
       return q.answer.every((item, i) => norm(item) === norm(userAnswer[i]));
@@ -776,5 +782,21 @@ const App = {
 
 document.addEventListener('DOMContentLoaded', () => {
   initSetupEvents();
+  // Click-to-toggle question number visibility
+  el('q-actual-num').addEventListener('click', () => {
+    const btn = el('q-actual-num');
+    const revealed = btn.dataset.revealed === 'true';
+    if (revealed) {
+      btn.textContent      = 'Q\u2022\u2022\u2022';
+      btn.dataset.revealed = 'false';
+      btn.title            = 'Click to reveal question number';
+      btn.classList.replace('tracking-normal', 'tracking-widest');
+    } else {
+      btn.textContent      = btn.dataset.qnum;
+      btn.dataset.revealed = 'true';
+      btn.title            = 'Click to hide question number';
+      btn.classList.replace('tracking-widest', 'tracking-normal');
+    }
+  });
   initHome();
 });

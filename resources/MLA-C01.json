@@ -2511,7 +2511,14 @@
         "L1 regularization",
         "L2 regularization",
         "Early stopping"
-      ]
+      ],
+      "hotspot_subtype": "selection",
+      "answer": [
+        "L1 regularization",
+        "L2 regularization",
+        "Early stopping"
+      ],
+      "explanation": "All three regularization methods are used in this matching question (each may be used once, more than once, or not at all per the instructions). The model-specific use cases appear in a table in the original PDF exam. Method guide: L1 regularization (Lasso) – adds a penalty proportional to the absolute value of coefficients; drives some weights to exactly zero, performing automatic feature selection; best for models with many irrelevant or redundant features. L2 regularization (Ridge) – adds a penalty proportional to the square of coefficients; shrinks all weights evenly without zeroing them; best when all features contribute but their magnitude should be constrained to prevent overfitting. Early stopping – halts training when validation loss stops improving; does not modify the loss function but prevents over-training epochs; effective for neural networks and gradient boosted models where continued training leads to memorization of noise."
     },
     {
       "question_number": 186,
@@ -2648,10 +2655,20 @@
       "type": "hotspot",
       "question": "An ML engineer needs to use Amazon SageMaker hyperparameter tuning to reduce the training time for an ML model. Select and order the correct steps from the following list to meet this requirement. Each step should be selected one time or not at all. (Select and order three.) •Choose Bayesian optimization and increase the number of parameters. •Choose Hyperband tuning and decrease the number of parameters. •Choose random search and use a random seed of -1. •Deploy the model to a SageMaker endpoint. •Evaluate the change in training time. •Retrain the model.",
       "options": [
+        "Choose Bayesian optimization and increase the number of parameters.",
+        "Choose Hyperband tuning and decrease the number of parameters.",
+        "Choose random search and use a random seed of -1.",
         "Deploy the model to a SageMaker endpoint.",
         "Evaluate the change in training time.",
         "Retrain the model."
-      ]
+      ],
+      "hotspot_subtype": "ordering",
+      "answer": [
+        "Choose Hyperband tuning and decrease the number of parameters.",
+        "Retrain the model.",
+        "Evaluate the change in training time."
+      ],
+      "explanation": "To reduce training time with SageMaker hyperparameter tuning: Step 1 – Choose Hyperband tuning and decrease the number of parameters. Hyperband uses early stopping to terminate unpromising training jobs early, making it significantly faster than Bayesian or random search. Decreasing the number of hyperparameters also narrows the search space and reduces total training time. Step 2 – Retrain the model using the optimal hyperparameters found by Hyperband. Step 3 – Evaluate the change in training time to verify that the tuning strategy successfully reduced training duration. Deploying to a SageMaker endpoint is not part of the hyperparameter tuning workflow. Random search with a seed of -1 and Bayesian optimization with more parameters would not reduce training time."
     },
     {
       "question_number": 197,
@@ -2663,7 +2680,16 @@
         "Hierarchical loss",
         "General oversampling",
         "Synthetic Minority Oversampling Technique (SMOTE) for text"
-      ]
+      ],
+      "hotspot_subtype": "selection",
+      "answer": [
+        "Categorical cross-entropy",
+        "Fallback metric",
+        "Hierarchical loss",
+        "General oversampling",
+        "Synthetic Minority Oversampling Technique (SMOTE) for text"
+      ],
+      "explanation": "All five strategies are used exactly once in this matching question. The use case statements appear in a table in the original PDF exam. Strategy guide: Hierarchical loss – loss function that penalizes misclassifications based on their distance in the product hierarchy (confusing a parent category is penalized more than confusing a sibling). Categorical cross-entropy – standard loss function for multiclass classification when hierarchical relationships are not the primary concern. Fallback metric – an alternative evaluation metric used when the primary metric cannot be computed for certain products or taxonomy levels. General oversampling – addresses class imbalance across all product categories (including visual features) by duplicating minority-class samples. Synthetic Minority Oversampling Technique (SMOTE) for text – generates synthetic text samples for underrepresented minority product categories to address class imbalance in the text data modality."
     },
     {
       "question_number": 198,
@@ -2686,7 +2712,14 @@
         "Invoke Amazon SageMaker Pipelines to run all steps required for model training and deployment.",
         "Create a pipeline in AWS CodePipeline. Build and test containers in AWS CodeBuild.",
         "Create a Git source code repository."
-      ]
+      ],
+      "hotspot_subtype": "ordering",
+      "answer": [
+        "Create a Git source code repository.",
+        "Create a pipeline in AWS CodePipeline. Build and test containers in AWS CodeBuild.",
+        "Invoke Amazon SageMaker Pipelines to run all steps required for model training and deployment."
+      ],
+      "explanation": "To configure a CI/CD pipeline for an ML model: Step 1 – Create a Git source code repository. The repository is the source-of-truth trigger; any code change committed here starts the pipeline. Step 2 – Create a pipeline in AWS CodePipeline. Build and test containers in AWS CodeBuild. CodePipeline orchestrates the stages; CodeBuild compiles the model code and tests the container image. Step 3 – Invoke Amazon SageMaker Pipelines to run all steps required for model training and deployment. Once the container is validated, SageMaker Pipelines handles data processing, model training, evaluation, and endpoint deployment automatically."
     },
     {
       "question_number": 200,
@@ -2697,7 +2730,15 @@
         "Batch inference",
         "Real-time inference",
         "Serverless inference"
-      ]
+      ],
+      "hotspot_subtype": "selection",
+      "answer": [
+        "Asynchronous inference",
+        "Batch inference",
+        "Real-time inference",
+        "Serverless inference"
+      ],
+      "explanation": "All four inference options are used exactly once in this matching question. The workload descriptions appear in a table in the original PDF exam. Option guide: Real-time inference – low-latency synchronous requests (< 60 s, payload ≤ 6 MB); ideal for interactive price-lookup or recommendation features. Asynchronous inference – large payloads or long-running predictions (payload up to 1 GB, up to 15 min); queues requests and stores results in S3 with SNS notification. Batch inference – offline, large-scale processing of a dataset at once; cost-effective for non-real-time bulk scoring. Serverless inference – sporadic or unpredictable traffic; scales from zero and charges only for compute used per request, avoiding the cost of idle instances."
     },
     {
       "question_number": 201,
@@ -2790,7 +2831,14 @@
         "All at once traffic shifting",
         "Canary traffic shifting",
         "Linear traffic shifting"
-      ]
+      ],
+      "hotspot_subtype": "selection",
+      "answer": [
+        "All at once traffic shifting",
+        "Canary traffic shifting",
+        "Linear traffic shifting"
+      ],
+      "explanation": "All three traffic-shifting strategies are used exactly once in this matching question. The use case descriptions appear in a table in the original PDF exam. Strategy guide: All at once traffic shifting – shifts 100% of traffic to the new model version immediately; fastest but highest risk if the new version has issues. Canary traffic shifting – routes a small initial percentage (e.g., 10%) to the new version to validate it, then shifts the remaining traffic all at once; balances speed and risk. Linear traffic shifting – gradually increases traffic to the new version in equal increments at fixed intervals (e.g., 10% every 5 minutes); slowest but provides the most controlled rollout with the earliest visibility into issues."
     },
     {
       "question_number": 209,
@@ -2803,7 +2851,14 @@
         "Create an external schema in Amazon Redshift to point to the Data Catalog database.",
         "Create an IAM role for Amazon Redshift to use to access only the S3 bucket that contains underlying data.",
         "Create an IAM role for Amazon Redshift to use to access the Data Catalog and the S3 bucket that contains underlying data."
-      ]
+      ],
+      "hotspot_subtype": "ordering",
+      "answer": [
+        "Create an IAM role for Amazon Redshift to use to access the Data Catalog and the S3 bucket that contains underlying data.",
+        "Attach the IAM role to the Redshift namespace.",
+        "Create an external schema in Amazon Redshift to point to the Data Catalog database."
+      ],
+      "explanation": "To configure Redshift Serverless to query the Glue Data Catalog and S3: Step 1 – Create an IAM role for Amazon Redshift to use to access the Data Catalog and the S3 bucket that contains underlying data. The role must grant access to BOTH Glue (for the Data Catalog) and S3 (for the actual data files). A role with only S3 access is insufficient. Step 2 – Attach the IAM role to the Redshift namespace. Redshift Serverless uses namespaces (not clusters); attaching the role to the cluster would be incorrect for a Serverless setup. Step 3 – Create an external schema in Amazon Redshift to point to the Data Catalog database. In Redshift, an external SCHEMA is created (not an external database) that maps to a Glue Data Catalog database. This allows Redshift to query tables catalogued by Glue via Redshift Spectrum."
     },
     {
       "question_number": 210,
@@ -2849,9 +2904,17 @@
       "type": "hotspot",
       "question": "An ML engineer needs to use Amazon SageMaker to develop an ML solution for a company. The solution will use streaming video from cameras to count the number of people who walk past the company’s store every day. Select and order the steps from the following list to implement the first version of the algorithm. Each step should be selected one time. (Select and order three.) •Choose a built-in algorithm or pre-trained model. •Decide the data input format and apply data augmentation if necessary. •Determine if the challenge is a classification, detection, or segmentation problem.",
       "options": [
+        "Choose a built-in algorithm or pre-trained model.",
         "Decide the data input format and apply data augmentation if necessary.",
         "Determine if the challenge is a classification, detection, or segmentation problem."
-      ]
+      ],
+      "hotspot_subtype": "ordering",
+      "answer": [
+        "Determine if the challenge is a classification, detection, or segmentation problem.",
+        "Choose a built-in algorithm or pre-trained model.",
+        "Decide the data input format and apply data augmentation if necessary."
+      ],
+      "explanation": "To implement the first version of a people-counting algorithm with SageMaker: Step 1 – Determine if the challenge is a classification, detection, or segmentation problem. Counting people walking past a store requires detecting and localizing people in each video frame, making this an object detection problem. Step 2 – Choose a built-in algorithm or pre-trained model. Once the problem type is confirmed as detection, select an appropriate SageMaker built-in algorithm (e.g., Object Detection) or a pre-trained model suited for detecting people. Step 3 – Decide the data input format and apply data augmentation if necessary. After selecting the model, determine how to format video frames as input and apply augmentation techniques (flipping, cropping) to improve model robustness."
     },
     {
       "question_number": 214,
@@ -3058,7 +3121,16 @@
         "Hierarchical loss",
         "General oversampling",
         "Synthetic Minority Oversampling Technique (SMOTE) for text"
-      ]
+      ],
+      "hotspot_subtype": "selection",
+      "answer": [
+        "Categorical cross-entropy",
+        "Fallback metric",
+        "Hierarchical loss",
+        "General oversampling",
+        "Synthetic Minority Oversampling Technique (SMOTE) for text"
+      ],
+      "explanation": "All five strategies are used exactly once in this matching question. The use case statements appear in a table in the original PDF exam. Strategy guide: Hierarchical loss – loss function that penalizes misclassifications based on their distance in the product hierarchy (confusing a parent category is penalized more than confusing a sibling). Categorical cross-entropy – standard loss function for multiclass classification when hierarchical relationships are not the primary concern. Fallback metric – an alternative evaluation metric used when the primary metric cannot be computed for certain products or taxonomy levels. General oversampling – addresses class imbalance across all product categories (including visual features) by duplicating minority-class samples. Synthetic Minority Oversampling Technique (SMOTE) for text – generates synthetic text samples for underrepresented minority product categories to address class imbalance in the text data modality."
     },
     {
       "question_number": 230,
@@ -3099,7 +3171,15 @@
         "Amazon CloudWatch metrics",
         "Amazon S3 bucket",
         "Amazon SageMaker Clarify"
-      ]
+      ],
+      "hotspot_subtype": "selection",
+      "answer": [
+        "Amazon CloudWatch alarms",
+        "Amazon CloudWatch metrics",
+        "Amazon S3 bucket",
+        "Amazon SageMaker Clarify"
+      ],
+      "explanation": "All four service features are used exactly once in this matching question. The specific questions/use cases appear in a table in the original PDF exam. Service guide: Amazon SageMaker Clarify – analyses the model for bias and explainability; directly detects bias drift by comparing feature attributions and fairness metrics between baseline and current predictions using the Ground Truth labels. Amazon S3 bucket – stores the Amazon SageMaker Ground Truth labels (the correct results) so that Model Monitor and Clarify can use them as the baseline for comparison. Amazon CloudWatch metrics – captures real-time numeric metrics emitted by the SageMaker endpoint (e.g., invocation counts, model latency, error rates) enabling trend analysis. Amazon CloudWatch alarms – triggers automated actions or notifications when a monitored metric exceeds a defined threshold, allowing the engineer to respond promptly to detected issues."
     },
     {
       "question_number": 233,

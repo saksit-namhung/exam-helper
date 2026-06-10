@@ -92,7 +92,12 @@
   <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
     <div class="flex items-center justify-between mb-4">
       <span id="q-type-badge" class="inline-block px-3 py-1 rounded-full text-xs font-semibold"></span>
-      <span id="q-actual-num" class="text-xs text-gray-400 font-mono bg-gray-100 px-2 py-1 rounded-md"></span>
+      <button id="q-actual-num"
+        title="Click to reveal question number"
+        class="text-xs text-gray-400 font-mono bg-gray-100 px-2 py-1 rounded-md
+               cursor-pointer select-none hover:bg-gray-200 transition-colors tracking-widest">
+        Q•••
+      </button>
     </div>
     <p id="q-text" class="text-gray-800 text-base leading-relaxed mb-6 whitespace-pre-wrap"></p>
     <div id="q-inputs" class="flex flex-col gap-3"></div>
