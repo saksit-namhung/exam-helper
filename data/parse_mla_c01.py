@@ -1,9 +1,12 @@
 import pdfplumber
 import re
 import json
+import os
 
-PDF_PATH = "/Users/saksit/Downloads/FIles/MLA-C01.pdf"
-OUT_PATH = "/Users/saksit/Downloads/FIles/MLA-C01.json"
+# Default paths - can be overridden via environment variables or command line
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PDF_PATH = os.environ.get("PDF_PATH", "/Users/saksit/Downloads/FIles/MLA-C01.pdf")
+OUT_PATH = os.environ.get("OUT_PATH", os.path.join(PROJECT_ROOT, "resources", "MLA-C01.json"))
 
 
 def extract_all_text(pdf_path):

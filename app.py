@@ -7,13 +7,23 @@ import json
 import os
 from pathlib import Path
 
-from flask import Flask, abort, jsonify, render_template
+try:
+    from flask import Flask, abort, jsonify, render_template
+except ModuleNotFoundError as exc:
+    raise SystemExit(
+        "Missing Flask dependency (or one of its required packages).\n"
+        "Install dependencies with one of these commands:\n"
+        "  python -m pip install -r requirements.txt\n"
+        "  python -m pip install Flask"
+    ) from exc
 
 app = Flask(__name__)
 
 # ── Local directory containing exam JSON files ──────────────────────────────
 # Override with DATA_DIR environment variable when needed (e.g. different machines).
-DATA_DIR = os.environ.get("DATA_DIR", "/Users/saksit/Downloads/FIles")
+# Default to the 'resources' folder in the project directory
+_default_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources")
+DATA_DIR = os.environ.get("DATA_DIR", _default_dir)
 
 
 # ── Routes ───────────────────────────────────────────────────────────────────
@@ -66,5 +76,9 @@ def get_exam(filename):
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    print("Starting Exam Practice App at http://127.0.0.1:5000")
-    app.run(host="127.0.0.1", port=5000, debug=False)
+    # Cloud Run provides PORT via environment variable
+    port = int(os.environ.get("PORT", 5001))
+    # Use 0.0.0.0 to make the app accessible externally (required for Cloud Run)
+    host = "0.0.0.0"
+    print(f"Starting Exam Practice App at http://{host}:{port}")
+    app.run(host=host, port=port, debug=False)

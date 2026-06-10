@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+.virtualenv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+.env.local
+
+# PDF files (source files, not needed in repo)
+*.pdf
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+.cache/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Docker (optional - uncomment if you don't want to track built images)
+# docker-compose.override.yml
