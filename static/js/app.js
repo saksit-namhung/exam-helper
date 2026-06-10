@@ -21,11 +21,16 @@ const state = {
   retryMode:        false,
   // Ordering UI internal state
   _ordering:        [],    // [{idx, val}] – selected items in click order
+  // Browse & detail state
+  browseQuestions:  [],
+  browsePage:       0,
+  browsePageSize:   25,
+  detailIdx:        0,
 };
 
 // ── Screen management ─────────────────────────────────────────────────────────
 
-const SCREENS = ['home','setup','question','feedback','summary'];
+const SCREENS = ['home','setup','question','feedback','summary','browse','detail'];
 
 function showScreen(name) {
   SCREENS.forEach(s => {
@@ -93,17 +98,24 @@ function renderExamList() {
     return;
   }
   el('exam-list').innerHTML = state.exams.map((exam, i) => `
-    <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm
-                flex items-center justify-between gap-4 hover:shadow-md transition-shadow">
-      <div>
-        <h2 class="font-semibold text-gray-900 text-lg leading-tight">${esc(exam.name)}</h2>
-        <p class="text-sm text-gray-400 mt-1">${esc(exam.code)} · ${exam.total_questions} questions</p>
+    <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <h2 class="font-semibold text-gray-900 text-lg leading-tight">${esc(exam.name)}</h2>
+          <p class="text-sm text-gray-400 mt-1">${esc(exam.code)} &middot; ${exam.total_questions} questions</p>
+        </div>
+        <button onclick="App.selectExam(${i})"
+          class="flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-medium
+                 px-5 py-2.5 rounded-xl transition-colors text-sm">
+          Start &rarr;
+        </button>
       </div>
-      <button onclick="App.selectExam(${i})"
-        class="flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-medium
-               px-5 py-2.5 rounded-xl transition-colors text-sm">
-        Start →
-      </button>
+      <div class="mt-3 pt-3 border-t border-gray-100">
+        <button onclick="App.openBrowse(${i})"
+          class="text-sm text-gray-500 hover:text-blue-600 transition-colors">
+          &#128203; Browse All Questions
+        </button>
+      </div>
     </div>
   `).join('');
 }
@@ -120,6 +132,17 @@ function selectExam(idx) {
   slider.value = Math.min(10, max);
   el('count-max').textContent     = max;
   el('count-display').textContent = slider.value;
+  // Init range inputs
+  el('range-start').value            = 1;
+  el('range-start').max              = max;
+  el('range-end').value              = max;
+  el('range-end').max                = max;
+  el('range-total').textContent      = max;
+  el('range-error').classList.add('hidden');
+  el('range-size-label').textContent = max;
+  // Always open in count mode
+  el('mode-count').checked = true;
+  updateSetupMode();
   showScreen('setup');
 }
 
@@ -127,6 +150,10 @@ function initSetupEvents() {
   el('setup-count').addEventListener('input', () => {
     el('count-display').textContent = el('setup-count').value;
   });
+  el('mode-count').addEventListener('change', updateSetupMode);
+  el('mode-range').addEventListener('change', updateSetupMode);
+  el('range-start').addEventListener('input', validateRange);
+  el('range-end').addEventListener('input',   validateRange);
   el('btn-start').addEventListener('click', startSession);
   el('btn-next').addEventListener('click', handleNext);
   el('btn-continue').addEventListener('click', handleContinue);
@@ -134,25 +161,107 @@ function initSetupEvents() {
   el('btn-new-session').addEventListener('click', () => App.goHome());
 }
 
-async function startSession() {
-  const count      = parseInt(el('setup-count').value, 10);
-  const randomize  = el('setup-random').checked;
+// ── MODE TOGGLE ───────────────────────────────────────────────────────────────
 
-  el('btn-start').disabled = true;
-  el('btn-start').textContent = 'Loading…';
+function updateSetupMode() {
+  const isRange = el('mode-range').checked;
+
+  el('label-mode-count').classList.toggle('border-blue-400', !isRange);
+  el('label-mode-count').classList.toggle('bg-blue-50',      !isRange);
+  el('label-mode-count').classList.toggle('border-gray-200',  isRange);
+  el('label-mode-count').classList.toggle('bg-white',         isRange);
+
+  el('label-mode-range').classList.toggle('border-blue-400',  isRange);
+  el('label-mode-range').classList.toggle('bg-blue-50',       isRange);
+  el('label-mode-range').classList.toggle('border-gray-200', !isRange);
+  el('label-mode-range').classList.toggle('bg-white',        !isRange);
+
+  if (isRange) {
+    validateRange();
+  } else {
+    el('range-error').classList.add('hidden');
+    el('btn-start').disabled = false;
+  }
+}
+
+// ── RANGE VALIDATION ──────────────────────────────────────────────────────────
+
+function validateRange() {
+  if (!el('mode-range').checked) return true;
+
+  const max   = state.selectedExam?.total_questions ?? 1;
+  const start = parseInt(el('range-start').value, 10);
+  const end   = parseInt(el('range-end').value,   10);
+  const errEl = el('range-error');
+  const msgEl = el('range-error-msg');
+  const btn   = el('btn-start');
+
+  let error = '';
+  if (isNaN(start) || start < 1)    error = 'Start must be \u2265 1.';
+  else if (isNaN(end) || end > max) error = `End must be \u2264 ${max}.`;
+  else if (start > end)             error = 'Start must be \u2264 end.';
+
+  if (error) {
+    msgEl.textContent = error;
+    errEl.classList.remove('hidden');
+    btn.disabled = true;
+    el('range-size-label').textContent = '\u2014';
+    return false;
+  }
+
+  errEl.classList.add('hidden');
+  btn.disabled = false;
+  el('range-size-label').textContent = end - start + 1;
+  return true;
+}
+
+async function startSession() {
+  const isRange  = el('mode-range').checked;
+  const randomize = el('setup-shuffle').checked;   // count mode shuffle checkbox
+
+  if (isRange && !validateRange()) return;
+
+  el('btn-start').disabled    = true;
+  el('btn-start').textContent = 'Loading\u2026';
   try {
     const data = await apiFetch(`/api/exam/${encodeURIComponent(state.selectedExam.filename)}`);
     state.allQuestions = data.questions ?? [];
   } catch(e) {
     alert('Failed to load exam: ' + e.message);
-    el('btn-start').disabled = false;
-    el('btn-start').textContent = 'Start Exam →';
+    el('btn-start').disabled    = false;
+    el('btn-start').textContent = 'Start Exam \u2192';
     return;
   }
-  el('btn-start').disabled = false;
-  el('btn-start').textContent = 'Start Exam →';
+  el('btn-start').disabled    = false;
+  el('btn-start').textContent = 'Start Exam \u2192';
 
-  beginSession(state.allQuestions, count, randomize);
+  if (isRange) {
+    // Range mode: Shuffle checked → shuffled; unchecked → sequential Q-number order
+    const rStart     = parseInt(el('range-start').value, 10);
+    const rEnd       = parseInt(el('range-end').value,   10);
+    const sequential = !el('range-shuffle').checked;
+    const pool       = state.allQuestions
+      .filter(q => q.question_number >= rStart && q.question_number <= rEnd);
+    if (pool.length === 0) {
+      alert('No questions found in the selected range. Please adjust the range.');
+      return;
+    }
+    if (sequential) {
+      pool.sort((a, b) => a.question_number - b.question_number);
+    } else {
+      shuffle(pool);
+    }
+    state.sessionQuestions = pool;
+    state.currentIdx       = 0;
+    state.results          = [];
+    state.retryMode        = false;
+    showScreen('question');
+    renderQuestion();
+  } else {
+    // Count mode: pick N from the full bank (original behaviour)
+    const count = parseInt(el('setup-count').value, 10);
+    beginSession(state.allQuestions, count, randomize);
+  }
 }
 
 function beginSession(pool, count, randomize) {
@@ -350,7 +459,7 @@ function buildHSMultiSlot(q) {
     const m = q.question.match(/\(Choose\s+(\w+)\.?\)/i);
     if (m) {
       const words = {one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10};
-      slots = words[m[1].toLowerCase()] ?? parseInt(m[1], 10) || opts.length;
+      slots = (words[m[1].toLowerCase()] ?? parseInt(m[1], 10)) || opts.length;
     } else {
       slots = opts.length;
     }
@@ -482,6 +591,7 @@ function checkAnswer(userAnswer, q) {
     }
 
     case 'hs-multi-slot': {
+      if (!q.answer) return null;   // answer not in source — cannot grade
       if (!Array.isArray(userAnswer) || !Array.isArray(q.answer)) return false;
       // Order within slots is unknown, so compare sorted counts.
       const a = [...q.answer].map(norm).sort();
@@ -857,12 +967,165 @@ function renderAllChoices(userAnswer, q, type, hasAnswer) {
   return '';
 }
 
+// ── BROWSE SCREEN ─────────────────────────────────────────────────────────────
+
+async function openBrowse(examIdx) {
+  state.selectedExam = state.exams[examIdx];
+  el('browse-title').textContent = state.selectedExam.name;
+  el('browse-code').textContent  = state.selectedExam.code;
+  el('browse-list').innerHTML    = '<p class="text-gray-400 text-center py-12">Loading\u2026</p>';
+  showScreen('browse');
+  try {
+    const data = await apiFetch(`/api/exam/${encodeURIComponent(state.selectedExam.filename)}`);
+    state.browseQuestions = data.questions ?? [];
+  } catch(e) {
+    el('browse-list').innerHTML =
+      `<p class="text-red-500 text-center py-12">Failed to load: ${esc(e.message)}</p>`;
+    return;
+  }
+  state.browsePage = 0;
+  el('browse-page-size').value = '25';
+  state.browsePageSize = 25;
+  renderBrowsePage();
+}
+
+function renderBrowsePage() {
+  const qs         = state.browseQuestions;
+  const total      = qs.length;
+  const pageSize   = parseInt(el('browse-page-size').value, 10) || 25;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  // Clamp page to valid bounds
+  if (state.browsePage >= totalPages) state.browsePage = totalPages - 1;
+  if (state.browsePage < 0) state.browsePage = 0;
+
+  const start = state.browsePage * pageSize;
+  const slice = qs.slice(start, start + pageSize);
+
+  el('browse-info').textContent        = `${total} questions`;
+  el('browse-pages-total').textContent = `/ ${totalPages}`;
+  el('browse-page-jump').value         = state.browsePage + 1;
+  el('browse-page-jump').max           = totalPages;
+
+  el('browse-list').innerHTML = slice.map((q, i) => {
+    const idx     = start + i;
+    const type    = uiType(q);
+    const snippet = (q.question ?? '').slice(0, 120) +
+                    ((q.question?.length ?? 0) > 120 ? '\u2026' : '');
+    return `
+      <button onclick="App.openDetail(${idx})"
+        class="w-full text-left bg-white border border-gray-200 rounded-xl p-4 shadow-sm
+               hover:shadow-md hover:border-blue-300 transition-all flex items-start gap-3">
+        <span class="flex-shrink-0 font-mono text-xs text-gray-400 min-w-[2.5rem] pt-0.5">Q${q.question_number}</span>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm text-gray-700 leading-relaxed">${esc(snippet)}</p>
+          <span class="inline-block mt-1.5 px-2 py-0.5 rounded-full text-xs font-semibold ${badgeClass(type)}">${badgeLabel(type)}</span>
+        </div>
+      </button>`;
+  }).join('');
+
+  el('browse-prev').disabled = (state.browsePage === 0);
+  el('browse-next').disabled = (state.browsePage >= totalPages - 1);
+}
+
+function browseChangePageSize() {
+  state.browsePage = 0;
+  renderBrowsePage();
+  window.scrollTo(0, 0);
+}
+
+function browseJumpPage() {
+  const pageSize   = parseInt(el('browse-page-size').value, 10) || 25;
+  const totalPages = Math.max(1, Math.ceil(state.browseQuestions.length / pageSize));
+  const target     = parseInt(el('browse-page-jump').value, 10) - 1;
+  state.browsePage = Math.max(0, Math.min(target, totalPages - 1));
+  renderBrowsePage();
+  window.scrollTo(0, 0);
+}
+
+function browsePrev() {
+  if (state.browsePage > 0) { state.browsePage--; renderBrowsePage(); window.scrollTo(0, 0); }
+}
+
+function browseNext() {
+  const pageSize   = parseInt(el('browse-page-size').value, 10) || 25;
+  const totalPages = Math.ceil(state.browseQuestions.length / pageSize);
+  if (state.browsePage < totalPages - 1) { state.browsePage++; renderBrowsePage(); window.scrollTo(0, 0); }
+}
+
+// ── DETAIL SCREEN ─────────────────────────────────────────────────────────────
+
+function openDetail(idx) {
+  state.detailIdx = idx;
+  renderDetail();
+  showScreen('detail');
+}
+
+function renderDetail() {
+  const qs    = state.browseQuestions;
+  const q     = qs[state.detailIdx];
+  const type  = uiType(q);
+  const total = qs.length;
+  const idx   = state.detailIdx;
+
+  el('detail-qnum').textContent  = `Q${q.question_number}`;
+  el('detail-count').textContent = `${idx + 1} of ${total}`;
+
+  const badge = el('detail-type-badge');
+  badge.textContent = badgeLabel(type);
+  badge.className   = `inline-block px-3 py-1 rounded-full text-xs font-semibold ${badgeClass(type)}`;
+
+  el('detail-prev').disabled = (idx === 0);
+  el('detail-next').disabled = (idx >= total - 1);
+  el('detail-question').textContent = q.question;
+
+  // Choices with correct answer highlighted (reuses renderAllChoices)
+  el('detail-choices').innerHTML = renderAllChoices(q.answer, q, type, !!q.answer);
+
+  // Correct answer summary
+  const ansSection = el('detail-answer-section');
+  if (q.answer) {
+    el('detail-answer').innerHTML = formatAnswer(q.answer, q, type, 'correct', true);
+    ansSection.classList.remove('hidden');
+  } else {
+    ansSection.classList.add('hidden');
+  }
+
+  // Explanation
+  const expEl = el('detail-explanation');
+  if (q.explanation) {
+    expEl.querySelector('.explanation-box').textContent = q.explanation;
+    expEl.classList.remove('hidden');
+  } else {
+    expEl.classList.add('hidden');
+  }
+}
+
+function detailPrev() {
+  if (state.detailIdx > 0) { state.detailIdx--; renderDetail(); window.scrollTo(0, 0); }
+}
+
+function detailNext() {
+  if (state.detailIdx < state.browseQuestions.length - 1) {
+    state.detailIdx++; renderDetail(); window.scrollTo(0, 0);
+  }
+}
+
 // ── PUBLIC API (called from HTML inline handlers) ─────────────────────────────
 
 const App = {
   selectExam,
   toggleOrder,
-  goHome:       () => initHome(),
+  openBrowse,
+  openDetail,
+  browsePrev,
+  browseNext,
+  browseChangePageSize,
+  browseJumpPage,
+  detailPrev,
+  detailNext,
+  goHome:      () => initHome(),
+  goToBrowse:  () => showScreen('browse'),
   goToSetup,
   handleBack,
   handleRevise,
