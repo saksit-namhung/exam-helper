@@ -2743,7 +2743,14 @@
     {
       "question_number": 201,
       "type": "hotspot",
-      "question": "A company uses Amazon SageMaker AI to support ML workflows such as model training and deployment. Select the correct registry from the following list to meet the requirements for each use case with the LEAST operational overhead. Each registry should be selected one or more times. (Choose four.)"
+      "hotspot_subtype": "multi-slot",
+      "question": "A company uses Amazon SageMaker AI to support ML workflows such as model training and deployment. Select the correct registry from the following list to meet the requirements for each use case with the LEAST operational overhead. Each registry should be selected one or more times. (Choose four.)",
+      "options": [
+        "Amazon Elastic Container Registry (Amazon ECR)",
+        "Amazon SageMaker Feature Store",
+        "Amazon SageMaker Model Registry"
+      ],
+      "explanation": "This question maps four SageMaker AI use cases to the correct AWS registry. The use case–to–registry table appears in the original PDF exam and could not be extracted. Registry guide: Amazon Elastic Container Registry (Amazon ECR) – a fully managed Docker image registry; used to store custom training container images and custom inference container images, enabling SageMaker to pull the correct environment for training jobs and endpoint deployments with the least overhead. Amazon SageMaker Model Registry – a managed repository for cataloguing, versioning, and managing the lifecycle of trained ML models; used to register model artifacts after training, track approval status, and promote models through staging to production. Amazon SageMaker Feature Store – a fully managed repository for storing, retrieving, and sharing ML features; used to serve features consistently during both model training (offline store) and real-time inference (online store), eliminating duplicated feature engineering across teams."
     },
     {
       "question_number": 202,
